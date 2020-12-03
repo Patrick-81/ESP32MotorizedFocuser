@@ -44,7 +44,7 @@ void echo(const char *format, int value)
 
 
 int pos = 0;
-int speed = 0;
+int speed = 1;
 bool engaged = false;
 bool connected = false;
 bool ledstatus = false;
