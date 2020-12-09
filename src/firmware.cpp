@@ -11,16 +11,28 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
+#include "parser.h"
 
-#define __DEBUG__ true
+extern char tempString[32];
+extern unsigned long currentPos;
+extern int speedNumber;
+
+#define __DEBUG__ false
 
 #if __DEBUG__
 	#define PRINT echo
 #endif
 
+#define __AP__
+
 // Replace with your network credentials
-const char* ssid = "HUAWEI-E5180-AE10";
-const char* password = "49TTJ4J607E";
+#ifdef __AP__
+	const char* ssid = "ESP32MotorizedFocuser";
+	const char* password = "1234";
+#else
+	const char* ssid = "HUAWEI-E5180-AE10";
+	const char* password = "49TTJ4J607E";
+#endif
 
 // the IP address for the shield:
 IPAddress local_ip(192, 168, 1, 143);
@@ -49,18 +61,22 @@ bool engaged = false;
 bool connected = false;
 bool ledstatus = false;
 
+void blink()
+{
+	if (ledstatus)	digitalWrite(led, LOW);
+	else digitalWrite(led, HIGH);
+	ledstatus = !ledstatus;
+}
 
-
-void setup(){
-	//----------------------------------------------------Serial
-	Serial.begin(9600);
-	Serial.println("Serial on\n");
+void initserver(){
+	// //----------------------------------------------------Serial
+	// Serial.begin(9600);
+	// Serial.println("Serial on\n");
 
 
 	//----------------------------------------------------GPIO
 	pinMode(led, OUTPUT);
 	digitalWrite(led, LOW);
-	pinMode(capteurLuminosite, INPUT);
 
 	//   //----------------------------------------------------SPIFFS
 	if(!SPIFFS.begin(true))
@@ -81,28 +97,29 @@ void setup(){
 	}
 
 	//----------------------------------------------------WIFI
-	WiFi.begin(ssid, password);
-	Serial.print("Tentative de connexion...");
+	#ifdef __AP__
+	  	// Connect to Wi-Fi network with SSID and password
+  		Serial.print("Setting AP (Access Point)…");
+  		// Remove the password parameter, if you want the AP (Access Point) to be open
+  		WiFi.softAP(ssid, password);
+  		IPAddress IP = WiFi.softAPIP();
+  		Serial.print("AP IP address: ");
+  		Serial.println(IP);
+	#else
+		WiFi.begin(ssid, password);
+		Serial.print("Tentative de connexion...");
 	
-	while(WiFi.status() != WL_CONNECTED)
-	{
-		Serial.print(".");
-		delay(100);
-	}
-	
-	connected = true;
-
-
-	Serial.println("\n");
-	Serial.println("Connexion etablie!");
-	Serial.print("Adresse IP: ");
-	Serial.println(WiFi.localIP());
-
-
-
-	// Print ESP Local IP Address
-	Serial.println(WiFi.localIP());
-
+		while(WiFi.status() != WL_CONNECTED)
+		{
+			Serial.print(".");
+			delay(100);
+		}
+		connected = true;
+		Serial.println("\n");
+		Serial.println("Connexion etablie!");
+		Serial.print("Adresse IP: ");
+		Serial.println(WiFi.localIP());
+	#endif
 
 	//----------------------------------------------------SERVER
 	server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -122,29 +139,29 @@ void setup(){
 
 	// Increase speed
 	server.on("/vplus", HTTP_GET, [](AsyncWebServerRequest *request){
-		speed =min(5,speed+1);
+		blink();
+		speedplus();
 		request->send(200);
 	});
 
 	// decrease speed
 	server.on("/vmoins", HTTP_GET, [](AsyncWebServerRequest *request){
-		speed =max(1,speed-1);
+		blink();
+		speedmoins();
 		request->send(200);
 	});
 
 	// Step+
 	server.on("/avant", HTTP_GET, [](AsyncWebServerRequest *request){
-		if (ledstatus)	digitalWrite(led, LOW);
-		else digitalWrite(led, HIGH);
-		ledstatus = !ledstatus;
-		pos++;
-		PRINT("position : %06d", pos);
+		blink();
+		gofwd();
 		request->send(200);
 	});
 
 	// Step-
 	server.on("/arriere", HTTP_GET, [](AsyncWebServerRequest *request){
-		pos=max(0,pos-1);
+		blink();
+		gobwd();
 		request->send(200);
 	});
 
@@ -156,13 +173,20 @@ void setup(){
 	});
 
 	server.on("/position",  HTTP_GET, [](AsyncWebServerRequest *request){
-		String position = String(pos);
-		request->send(200, "text/plain", position);
+		sprintf(tempString,"%0lu",currentPos);
+		// String position = String(getpos());
+		// String position = String(0);
+		request->send(200, "text/plain", String(tempString));
 	});
 
 	server.on("/speed",  HTTP_GET, [](AsyncWebServerRequest *request){
-		String sp = String(speed);
-		request->send(200, "text/plain", sp);
+		sprintf(tempString,"%d",speedNumber);
+		request->send(200, "text/plain", tempString);
+	});
+
+	server.on("/zero",  HTTP_GET, [](AsyncWebServerRequest *request){
+		gotozero();
+		request->send(200);
 	});
 
 	server.on("/engaged",  HTTP_GET, [](AsyncWebServerRequest *request){
@@ -181,12 +205,12 @@ void setup(){
 	Serial.println("Serveur actif!");
 }
 
-void loop() {
-	if (connected)
-	{
-		// PRINT("position : %06d", pos);
-		// PRINT("vitesse : %02d", speed);
-		// PRINT("engagé : %d", engaged);
-		// delay(1000);
-	}
-}
+// void loop() {
+// 	if (connected)
+// 	{
+// 		// PRINT("position : %06d", pos);
+// 		// PRINT("vitesse : %02d", speed);
+// 		// PRINT("engagé : %d", engaged);
+// 		// delay(1000);
+// 	}
+// }

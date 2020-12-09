@@ -6,7 +6,8 @@ const cntrl = {
     speedplus: 0,         // incrémente vitesse bouton appuyé 1 lâché 0
     speedmoins: 0,        // diminue vitesse bouton appuyé 1 lâché 0
     engaged: true,        // débraye le moteur bouton appuyé 1 lâché 0
-    lockunlock: true      // débraye le moteur bouton appuyé 1 lâché 0
+    lockunlock: true,     // débraye le moteur bouton appuyé 1 lâché 0
+    gotozero: true        // retour à zero
 }
 
 gofwd = document.getElementById("fwd");
@@ -14,6 +15,7 @@ gobwd = document.getElementById("bwd");
 speedup = document.getElementById("vplus");
 speeddown = document.getElementById("vmoins");
 embrayer = document.getElementById("engaged");    
+tozero = document.getElementById("tozero");   
 ///////////////////////////////////////////////////////////////
 // Commandes à partir de l'appareil mobile
 // Mouvement avant 
@@ -56,6 +58,14 @@ embrayer.addEventListener('touchstart', function(ev) {
 });
 embrayer.addEventListener('touchend',  function(ev) {
 });
+// Retour à zero
+tozero.addEventListener('touchstart', function(ev) {
+    ev.preventDefault();
+  cntrl.gotozero = true;
+});
+tozero.addEventListener('touchend',  function(ev) {
+});
+
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 // Commandes à partir du PC
@@ -85,6 +95,10 @@ function startarriere() {
 }
 function stoparriere() {
     cntrl.arriere = 0;
+}
+// Retour à zero
+function zero() {
+    cntrl.gotozero = true;
 }
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
@@ -116,6 +130,13 @@ function loop() {
         xhttp.open("GET", "vmoins", true);
         xhttp.send();        
         cntrl.speedmoins = 0;
+    }
+    else if (cntrl.gotozero)
+    {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "zero", true);
+        xhttp.send();          
+        cntrl.gotozero = false;
     }
     else if (cntrl.lockunlock)
     {

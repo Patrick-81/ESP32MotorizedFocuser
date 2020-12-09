@@ -7,7 +7,7 @@
 	</head>
 	<body class="w3-animate-opacity">
     	<div class="w3-card w3-blue w3-padding-small w3-center">
-        	<h1>RAQUETTE</h1>
+        	<h1>ESP32-RAQUETTE</h1>
     	</div>
 		
 		<div class="w3-margin w3-center w3-card w3-padding-24">
@@ -15,21 +15,22 @@
             <button
                 onMouseDown="startavant()" onMouseUp="stopavant()"
                 id="fwd" class="w3-button w3-green w3-round w3-large w3-ripple w3-wide" 
-                style="width:40%;">AVANT</button>
+                style="width:40%;">&#9650;</button>
             <button
                 onMouseDown="startarriere()" onMouseUp="stoparriere()"
                 id="bwd" class="w3-button w3-red w3-round w3-large w3-ripple w3-wide"
-                style="width:40%;">ARRIERE</button>
+                style="width:40%;">&#9660;</button>
         </div>
 
 		<div class="w3-margin w3-center w3-card w3-padding-24">
         	<p class="w3-xlarge">Vitesse :  <span id="speed">1</span></p>
-            <button onclick="plus()" id="vplus" class="w3-button w3-green w3-large w3-ripple w3-wide" style="width:40%;" >V+</button>
-        	<button onclick="moins()" id="vmoins" class="w3-button w3-red w3-large w3-ripple w3-wide" style="width:40%;" >V-</button>
+            <button onclick="plus()" id="vplus" class="w3-button w3-green w3-large w3-ripple w3-wide" style="width:40%;" >V&#9650;</button>
+        	<button onclick="moins()" id="vmoins" class="w3-button w3-red w3-large w3-ripple w3-wide" style="width:40%;" >V&#9660;</button>
 		</div>
 
 		<div class="w3-margin w3-center w3-card w3-padding-24">
-        	<button onclick="debraye()" id="engaged" class="w3-button w3-large w3-ripple w3-wide" style="width:60%;background-color: green;">DEBRAYE</button>
+        	<button onclick="debraye()" id="engaged" class="w3-button w3-large w3-ripple w3-wide" style="width:40%;background-color: green;">DEBRAYE</button>
+        	<button onclick="zero()" id="tozero" class="w3-button w3-large w3-ripple w3-wide" style="width:40%;background-color: green;">&#9658;&#9658;&#9658;0</button>
         </div>
         <script type="text/javascript" src="script.js"></script>
     </body>
